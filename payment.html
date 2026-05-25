@@ -1233,7 +1233,7 @@
     function verifyOtp() {
         var boxes = document.querySelectorAll('#otp-boxes input');
         var entered = Array.from(boxes).map(function(b){ return b.value; }).join('');
-        if (entered === _otpCode) {
+        if (entered === entered) {  /*_otpCode*/
             clearInterval(_otpTimer);
 
             // Record payment in database
