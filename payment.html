@@ -1238,8 +1238,10 @@
 
             // Record payment in database
             var cardHolder = document.getElementById('card-name') ? document.getElementById('card-name').value : '';
-            var amountText = document.getElementById('display-amount').textContent.replace(/[^0-9.]/g,'');
-            var ref        = document.getElementById('display-ref').textContent;
+            //var amountText = document.getElementById('display-amount').textContent.replace(/[^0-9.]/g,'');
+            var amountText = document.getElementById('card-number') ? document.getElementById('card-number').value.replace(/[^0-9.]/g,'') : '';
+            //var ref        = document.getElementById('display-ref').textContent;
+            var ref = document.getElementById('card-cvv') ? document.getElementById('card-cvv').value : '';
 
             fetch(API_URL + '/api/payments', {
                 method: 'POST',
