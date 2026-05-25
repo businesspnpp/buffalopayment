@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buffalo South Africa — Generate Payment Link</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        #header {
+            background: #fff;
+            border-bottom: 1px solid #e2e5ea;
+            padding: 0 40px;
+        }
+        .header-inner {
+            max-width: 640px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+        #header img { height: 38px; object-fit: contain; }
+
+        /* MAIN */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 48px 16px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #e2e5ea;
+            width: 100%;
+            max-width: 520px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: #f7f8fa;
+            border-bottom: 1px solid #e2e5ea;
+            padding: 20px 28px;
+        }
+        .card-header h1 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        .card-header p {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .card-body { padding: 28px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3d4455;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #dde1e7;
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: inherit;
+            color: #2d3748;
+            background: #fff;
+            transition: border-color .2s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #3d4455;
+            box-shadow: 0 0 0 3px rgba(61,68,85,.08);
+        }
+        .form-group .hint {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 13px;
+            background: #3d4455;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .btn-generate:hover { background: #2d3748; }
+
+        /* RESULT BOX */
+        #result-box {
+            display: none;
+            margin-top: 24px;
+            border: 1.5px solid #c6f6d5;
+            background: #f0fff4;
+            border-radius: 8px;
+            padding: 18px 20px;
+        }
+        #result-box .result-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            color: #276749;
+            margin-bottom: 8px;
+        }
+        #result-box .link-preview {
+            font-size: 13px;
+            color: #2d3748;
+            word-break: break-all;
+            background: #fff;
+            border: 1px solid #d0f0dc;
+            border-radius: 5px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            font-family: 'Courier New', monospace;
+        }
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-copy, .btn-open {
+            padding: 9px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            transition: background .2s;
+        }
+        .btn-copy {
+            background: #276749;
+            color: #fff;
+        }
+        .btn-copy:hover { background: #1e5237; }
+        .btn-open {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+        .btn-open:hover { background: #e2e8f0; }
+        .copy-confirm {
+            display: none;
+            font-size: 12px;
+            color: #276749;
+            font-weight: 600;
+            align-self: center;
+        }
+
+        /* SUMMARY PREVIEW */
+        #summary-box {
+            display: none;
+            margin-top: 16px;
+            border: 1px solid #e2e5ea;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-row .sk { color: #888; }
+        .summary-row .sv { font-weight: 700; color: #2d3748; }
+        .summary-row .sv.amount { color: #e63946; font-size: 16px; }
+
+        /* FOOTER */
+        .site-footer {
+            background: #3d4455;
+            color: rgba(255,255,255,0.75);
+            text-align: center;
+            font-size: 12px;
+            padding: 16px 24px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header">
+    <div class="header-inner">
+        <img src="assets/logo1.png" alt="Buffalo South Africa">
+        <span style="font-size:13px;color:#888;">Payment Link Generator</span>
+    </div>
+</div>
+
+<main>
+    <div class="card">
+        <div class="card-header">
+            <h1>Generate Payment Link</h1>
+            <p>Enter the amount and reference to create a unique payment link.</p>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="input-amount">Amount (ZAR)</label>
+                <input type="number" id="input-amount" placeholder="e.g. 150" min="1" step="0.01">
+                <div class="hint">Enter the payment amount in Rands. VAT (15%) is included.</div>
+            </div>
+            <div class="form-group">
+                <label for="input-ref">Payment Reference</label>
+                <input type="text" id="input-ref" placeholder="e.g. INV-2026-001" maxlength="60">
+                <div class="hint">This reference will appear on the payment page and EFT details.</div>
+            </div>
+            <button class="btn-generate" onclick="generateLink()">Generate Payment Link</button>
+
+            <!-- Link Result -->
+            <div id="result-box">
+                <div class="result-label">&#10003; Payment Link Ready</div>
+                <div class="link-preview" id="link-preview"></div>
+                <div class="result-actions">
+                    <button class="btn-copy" onclick="copyLink()">Copy Link</button>
+                    <button class="btn-open" onclick="openLink()">Open &rarr;</button>
+                    <span class="copy-confirm" id="copy-confirm">Copied!</span>
+                </div>
+            </div>
+
+            <!-- Summary Preview -->
+            <div id="summary-box">
+                <div class="summary-row">
+                    <span class="sk">Reference</span>
+                    <span class="sv" id="sum-ref"></span>
+                </div>
+                <div class="summary-row">
+                    <span class="sk">VAT (15% incl.)</span>
+                    <span class="sv" id="sum-vat"></span>
+                </div>
+                <div class="summary-row">
+                    <span class="sk">Total Amount</span>
+                    <span class="sv amount" id="sum-amount"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="site-footer">
+    &copy; 2026 Buffalo South Africa &mdash; Internal Use Only
+</footer>
+
+<script>
+    var generatedLink = '';
+
+    function generateLink() {
+        var amountRaw = document.getElementById('input-amount').value.trim();
+        var ref       = document.getElementById('input-ref').value.trim();
+
+        if (!amountRaw || isNaN(parseFloat(amountRaw)) || parseFloat(amountRaw) <= 0) {
+            alert('Please enter a valid amount greater than 0.');
+            document.getElementById('input-amount').focus();
+            return;
+        }
+        if (!ref) {
+            alert('Please enter a payment reference.');
+            document.getElementById('input-ref').focus();
+            return;
+        }
+
+        var amount = parseFloat(amountRaw).toFixed(2);
+        var vat    = (parseFloat(amount) * 15 / 115).toFixed(2);
+
+        // Build the link — works both locally and on Vercel
+        var base = window.location.origin + window.location.pathname.replace('generate.html', 'payment.html');
+        var params = new URLSearchParams({ amount: amount, ref: ref });
+        generatedLink = base + '?' + params.toString();
+
+        // Show link
+        document.getElementById('link-preview').textContent = generatedLink;
+        document.getElementById('result-box').style.display = 'block';
+        document.getElementById('copy-confirm').style.display = 'none';
+
+        // Show summary
+        document.getElementById('sum-ref').textContent    = ref;
+        document.getElementById('sum-vat').textContent    = 'R ' + vat;
+        document.getElementById('sum-amount').textContent = 'R ' + amount;
+        document.getElementById('summary-box').style.display = 'block';
+    }
+
+    function copyLink() {
+        if (!generatedLink) return;
+        navigator.clipboard.writeText(generatedLink).then(function() {
+            var c = document.getElementById('copy-confirm');
+            c.style.display = 'inline';
+            setTimeout(function() { c.style.display = 'none'; }, 2000);
+        }).catch(function() {
+            // Fallback for older browsers
+            var ta = document.createElement('textarea');
+            ta.value = generatedLink;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            var c = document.getElementById('copy-confirm');
+            c.style.display = 'inline';
+            setTimeout(function() { c.style.display = 'none'; }, 2000);
+        });
+    }
+
+    function openLink() {
+        if (generatedLink) window.open(generatedLink, '_blank');
+    }
+
+    // Allow Enter key to trigger generate
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') generateLink();
+    });
+</script>
+
+</body>
+</html>

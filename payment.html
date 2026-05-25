@@ -1,0 +1,861 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Buffalo South Africa &ndash; Secure Payment</title>
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-size: 14px;
+            color: #3d4455;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== HEADER ===== */
+        #header {
+            background: #fff;
+            border-bottom: 1px solid #e2e5ea;
+            padding: 0 24px;
+        }
+        .grid-header {
+            max-width: 960px;
+            margin: 0 auto;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .headLogos img { height: 44px; display: block; }
+        #pflogo .secure-text {
+            font-size: 12px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #pflogo .secure-text svg { width: 15px; height: 15px; fill: #4caf50; }
+
+        /* ===== WRAPPER ===== */
+        .row-main {
+            flex: 1;
+            width: 100%;
+            max-width: 960px;
+            margin: 32px auto;
+            padding: 0 16px;
+        }
+
+        .grid-payment {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* ===== LEFT COLUMN ===== */
+        .half.left {
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e2e5ea;
+            overflow: hidden;
+        }
+
+        .tablewrapper-header {
+            background: #f7f8fa;
+            border-bottom: 1px solid #e2e5ea;
+            padding: 16px 20px;
+        }
+        .item-description {
+            font-weight: 700;
+            font-size: 14px;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+        .tablewrapper-body { padding: 0 20px; }
+
+        .row-div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: 1px solid #f0f2f5;
+            font-size: 14px;
+        }
+        .row-div:last-child { border-bottom: none; }
+        .col-left { color: #888; }
+        .col-grey .col-left { color: #3d4455; font-weight: 600; }
+        .col-grey .col-right { color: #3d4455; }
+        .col-right { font-weight: 600; }
+        .total-row {
+            padding: 16px 20px;
+            background: #fff;
+            border-top: 2px solid #3d4455;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total-row .label { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: #3d4455; }
+        .total-row .amount { font-size: 24px; font-weight: 700; color: #e63946; }
+
+        .buyer-container {
+            padding: 16px 20px;
+            border-top: 1px solid #e2e5ea;
+            font-size: 13px;
+            color: #888;
+        }
+        .buyer-container .buyer-label { margin-bottom: 4px; }
+        .buyer-email { font-weight: 600; color: #3d4455; }
+
+        /* ===== RIGHT COLUMN ===== */
+        .half.right { position: relative; }
+        .contentBox {
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e2e5ea;
+            overflow: hidden;
+        }
+
+        /* payment header (step 2) */
+        #payment-header {
+            display: none;
+            padding: 14px 20px;
+            background: #f7f8fa;
+            border-bottom: 1px solid #e2e5ea;
+            align-items: center;
+            gap: 10px;
+        }
+        #payment-header.visible { display: flex; }
+        #payment-header-title { font-weight: 700; font-size: 15px; color: #2d3748; }
+        #payment-method-back-button {
+            margin-left: auto;
+            font-size: 13px;
+            color: #e63946;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        #payment-method-back-button:hover { text-decoration: underline; }
+
+        /* ===== STEP 1: METHOD LIST ===== */
+        #paymentmethods { display: block; }
+        .sub-heading {
+            padding: 18px 20px 10px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #2d3748;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        .payment-method {
+            list-style: none;
+            padding: 0;
+        }
+        .payment-method li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid #f0f2f5;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .payment-method li:last-child { border-bottom: none; }
+        .payment-method li:hover { background: #fafbfc; }
+        .payment-method li .method-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .payment-method li .method-logos {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .payment-method li .method-logos img {
+            height: 26px;
+            object-fit: contain;
+        }
+        .method-arrow {
+            color: #c0c5cf;
+            font-size: 16px;
+            margin-left: 12px;
+        }
+
+        /* ===== STEP 2: PAYMENT FORMS ===== */
+        #tabs-content { display: none; padding: 24px 20px 20px; }
+        #tabs-content.visible { display: block; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin-bottom: 6px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #dde1e7;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #2d3748;
+            background: #fff;
+            transition: border-color .2s;
+            appearance: none;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3d4455;
+            box-shadow: 0 0 0 3px rgba(61,68,85,.08);
+        }
+        .form-group input::placeholder { color: #c0c5cf; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        /* card number logo detection */
+        .card-number-wrap { position: relative; }
+        .card-number-wrap input { padding-right: 56px; }
+        #card-number {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.18em;
+            font-size: 15px;
+        }
+        #card-number.invalid { border-color: #e63946; }
+        #card-number.valid   { border-color: #2e7d32; }
+        .card-error {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #e63946;
+            display: none;
+        }
+        .card-error.visible { display: block; }
+        #card-type-logo {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 28px;
+            width: 44px;
+            object-fit: contain;
+            display: none;
+            pointer-events: none;
+        }
+
+        /* card preview strip */
+        .card-preview {
+            width: 100%;
+            height: 210px;
+            background-color: #1a1c1e;
+            background-image:
+                radial-gradient(circle at 62% 58%, transparent 0%, transparent 22%, rgba(0,0,0,0.4) 23%, rgba(0,0,0,0.6) 28%, transparent 29%),
+                radial-gradient(circle at 62% 58%, transparent 0%, transparent 38%, rgba(0,0,0,0.3) 39%, rgba(0,0,0,0.5) 45%, transparent 46%),
+                radial-gradient(circle at 62% 58%, #25282a 0%, #161819 60%, #0d0e10 100%);
+            border-radius: 14px;
+            padding: 18px 22px;
+            color: #fff;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-bottom: 22px;
+        }
+        .card-preview::before {
+            content: "";
+            position: absolute;
+            top: -20px; left: -40px;
+            width: 140px; height: 280px;
+            border-right: 4px solid #ffb300;
+            border-radius: 50%;
+            opacity: 0.7;
+            mask-image: linear-gradient(to bottom, black 10%, transparent 45%, transparent 55%, black 90%);
+            -webkit-mask-image: linear-gradient(to bottom, black 10%, transparent 45%, transparent 55%, black 90%);
+            pointer-events: none;
+        }
+        .cp-top { display:flex; justify-content:space-between; align-items:flex-start; z-index:5; }
+        .cp-title { font-size:14px; font-weight:500; color:#fff; letter-spacing:0.5px; }
+        .cp-top-marker { width:14px; height:3px; background:#ffb300; transform:skewX(-30deg); position:absolute; top:0; left:70px; }
+        .cp-middle { display:flex; align-items:center; justify-content:space-between; position:relative; height:54px; }
+        .cp-chip-area { display:flex; align-items:center; gap:10px; z-index:5; }
+        .cp-signal { display:flex; gap:3px; opacity:0.85; }
+        .cp-signal span { display:block; width:2.5px; background:#fff; border-radius:50%; }
+        .cp-signal span:nth-child(1) { height:5px; }
+        .cp-signal span:nth-child(2) { height:10px; }
+        .cp-signal span:nth-child(3) { height:14px; }
+        .cp-chip { width:38px; height:28px; background:linear-gradient(135deg,#cfd8dc 0%,#b0bec5 45%,#eceff1 70%,#90a4ae 100%); border-radius:5px; box-shadow:inset 0 1px 1px rgba(0,0,0,0.2),0 1px 2px rgba(0,0,0,0.3); position:relative; }
+        .cp-chip::before { content:""; position:absolute; top:50%; left:0; width:100%; height:1px; background:rgba(0,0,0,0.15); }
+        .cp-badge { position:absolute; right:42px; top:-8px; width:64px; height:64px; border:2.5px solid #ffb300; border-radius:50%; display:flex; justify-content:center; align-items:center; background:transparent; box-shadow:0 2px 8px rgba(0,0,0,0.4); z-index:4; }
+        .cp-tree { width:36px; height:30px; position:relative; display:flex; flex-direction:column; align-items:center; }
+        .cp-canopy { width:100%; display:flex; flex-direction:column; gap:2px; align-items:center; }
+        .cp-layer { height:3px; background:#ffb300; border-radius:1px; }
+        .cp-l1 { width:34px; border-radius:2px 2px 1px 1px; }
+        .cp-l2 { width:28px; }
+        .cp-l3 { width:20px; }
+        .cp-stem { width:4px; height:12px; background:#ffb300; margin-top:-1px; border-radius:0 0 2px 2px; position:relative; }
+        .cp-stem::before { content:""; position:absolute; bottom:0; left:-4px; width:12px; height:5px; border-bottom:2px solid #ffb300; border-radius:50%; }
+        .cp-bottom { display:flex; justify-content:space-between; align-items:flex-end; z-index:5; }
+        .cp-creds { display:flex; flex-direction:column; gap:3px; }
+        .cp-embossed { font-family:"Courier New",Courier,monospace; color:#d1d5db; font-weight:700; text-shadow:-1px -1px 0 rgba(0,0,0,.8),1px 1px 0 rgba(255,255,255,.45); }
+        .cp-num { font-size:15px; letter-spacing:2px; word-spacing:4px; }
+        .cp-name { font-size:12px; letter-spacing:1.5px; text-transform:uppercase; margin-top:2px; }
+        .cp-exp { font-size:11px; letter-spacing:1px; color:rgba(255,255,255,0.6); margin-top:1px; }
+        .cp-brand { font-size:26px; font-weight:900; font-style:italic; color:#fff; letter-spacing:-1.5px; line-height:1; padding-bottom:2px; }
+
+        /* EFT info box */
+        .eft-info-box {
+            background: #f7f8fa;
+            border-radius: 6px;
+            border: 1px solid #e2e5ea;
+            margin-bottom: 20px;
+        }
+        .eft-row {
+            display: flex; justify-content: space-between;
+            padding: 11px 16px; font-size: 14px;
+            border-bottom: 1px solid #edf0f3;
+        }
+        .eft-row:last-child { border-bottom: none; }
+        .eft-row .k { color: #888; }
+        .eft-row .v { font-weight: 600; }
+        .eft-note {
+            font-size: 13px; color: #888;
+            background: #fffbe6;
+            border-left: 3px solid #f6c90e;
+            padding: 10px 14px;
+            border-radius: 4px;
+            margin-bottom: 18px;
+        }
+
+        /* Pay button */
+        .btn-pay {
+            width: 100%;
+            padding: 14px;
+            background: #e63946;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: .5px;
+            cursor: pointer;
+            transition: background .2s;
+            margin-top: 4px;
+        }
+        .btn-pay:hover { background: #c1121f; }
+        .btn-pay:active { transform: scale(.99); }
+
+        .secure-note {
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .secure-note svg { width: 12px; height: 12px; fill: #4caf50; }
+
+        /* cancel action */
+        .contentActions {
+            padding: 16px 20px;
+            border-top: 1px solid #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-cancel {
+            width: 100%;
+            padding: 11px;
+            background: #fff;
+            color: #888;
+            border: 1.5px solid #dde1e7;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .btn-cancel:hover { background: #f7f8fa; }
+        #change-payment-method {
+            font-size: 13px;
+            color: #e63946;
+            text-decoration: none;
+            display: none;
+        }
+        #change-payment-method:hover { text-decoration: underline; }
+        #change-payment-method.visible { display: inline; }
+
+        /* ===== PARTNERSHIPS ===== */
+        .partnership-section {
+            background: #fff;
+            border-top: 1px solid #e2e5ea;
+            border-bottom: 1px solid #e2e5ea;
+            padding: 12px 16px;
+            margin-top: 32px;
+        }
+        .partnership-section__wrapper {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .partnership-logos {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            gap: 0 32px;
+        }
+        .partnership-logos img {
+            width: 64px;
+            height: 28px;
+            object-fit: contain;
+            object-position: center;
+            opacity: .55;
+            filter: grayscale(40%);
+            transition: opacity .2s;
+            flex-shrink: 0;
+        }
+
+        .partnership-logos img:nth-child(-n+9) { width: 80px; height: 36px; }
+
+        /* ===== FOOTER ===== */
+        .site-footer {
+            background-color: #0076b6;
+            color: white;
+            padding: 30px 180px;
+            font-size: 15px;
+            margin-top: auto;
+        }
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+            line-height: 1.6;
+        }
+        .footer-links a {
+            color: white;
+            text-decoration: underline;
+        }
+        .footer-right { text-align: right; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 680px) {
+            .grid-payment { grid-template-columns: 1fr; }
+            .row-main { margin: 16px auto; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+    <div class="grid-header">
+        <div id="clogo" class="headLogos">
+            <img src="assets/logo1.png" alt="Buffalo South Africa">
+        </div>
+        <div id="pflogo" class="headLogos">
+            <img src="assets/payfast-network-logo.png" alt="Payfast by Network" style="height:44px;">
+        </div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="row-main">
+    <article class="grid-payment">
+
+        <!-- ── LEFT: Order Summary ── -->
+        <div class="half left" id="left-column">
+            <div class="tablewrapper-header">
+                <div class="item-description">Buffalo South Africa &mdash; Delivery Fee</div>
+                <div style="font-size:12px;color:#888;">Courier &amp; Logistics Service</div>
+            </div>
+            <div class="tablewrapper-body">
+                <div class="row-div">
+                    <span class="col-left">Service</span>
+                    <span class="col-right">Delivery Fee</span>
+                </div>
+                <div class="row-div">
+                    <span class="col-left">Reference</span>
+                    <span class="col-right" id="display-ref">#BUF-2026-001</span>
+                </div>
+                <div class="row-div">
+                    <span class="col-left">VAT (15%)</span>
+                    <span class="col-right" id="display-vat">R 19.57</span>
+                </div>
+            </div>
+            <div class="total-row">
+                <span class="label">Payment Total:</span>
+                <span class="amount" id="display-amount">R 150.00</span>
+            </div>
+            <div class="buyer-container">
+                <div class="buyer-label">Transacting as:</div>
+                <div class="buyer-email" id="buyer-email">guest@checkout.com</div>
+            </div>
+        </div>
+
+        <!-- ── RIGHT: Payment ── -->
+        <div class="half right" id="right-column">
+            <div class="contentBox">
+
+                <!-- Payment method back header (shown on step 2) -->
+                <div id="payment-header">
+                    <span id="payment-header-title"></span>
+                    <a href="#" id="payment-method-back-button" onclick="goBack(event)">
+                        &#8592; Back
+                    </a>
+                </div>
+
+                <!-- STEP 1: Method Selection -->
+                <div id="paymentmethods">
+                    <div class="sub-heading">How will you be paying today?</div>
+                    <ul class="payment-method">
+
+                        <li onclick="selectMethod('credit-card', 'Credit / Debit Card')">
+                            <span class="method-name">Credit / Debit Card</span>
+                            <span class="method-logos">
+                                <!-- Visa SVG -->
+                                <svg height="26" viewBox="0 0 780 500" xmlns="http://www.w3.org/2000/svg"><rect width="780" height="500" rx="40" fill="#1a1f71"/><path d="M293 348.7L321.9 150h47.2L340.2 348.7H293zm167.3-193.4c-9.4-3.5-24-7.3-42.3-7.3-46.6 0-79.4 23.6-79.6 57.4-.3 24.9 23.3 38.9 41.1 47.2 18.3 8.4 24.4 13.8 24.3 21.3-.1 11.5-14.6 16.8-28.1 16.8-18.7 0-28.7-2.6-44-9l-6-2.8-6.6 38.8c11 4.8 31.2 9 52.2 9.2 49.3 0 81.4-23.3 81.8-59.4.2-19.8-12.4-34.8-39.5-47.2-16.4-8-26.5-13.4-26.4-21.5 0-7.2 8.5-14.9 26.9-14.9 15.4-.2 26.5 3.1 35.1 6.6l4.2 2 6.9-37.2zm120.7-1.3h-36.4c-11.3 0-19.7 3.1-24.7 14.4l-70.2 159.8h49.7l9.9-26.2 60.6.1c1.4 6.1 5.7 26.1 5.7 26.1h43.8L581 154zm-58.2 113.4l18.4-47.6c-.2.4 3.8-9.9 6.1-16.3l3.1 14.7 10.7 49.2h-38.3zm-370.2-113.4L108 283.9l-4.9-24c-8.6-27.7-35.3-57.8-65.2-72.8l42.3 161.3 50 .1 74.4-194.1-48.7.1z" fill="#fff"/><path d="M86.9 154H9.7L9 157.8c59.9 14.6 99.5 49.9 116 92.3L107.6 168.6c-3.3-11-11.4-14.3-20.7-14.6z" fill="#f6a500"/></svg>
+                                <!-- Mastercard SVG -->
+                                <svg height="26" viewBox="0 0 131.39 86.9" xmlns="http://www.w3.org/2000/svg"><rect width="131.39" height="86.9" rx="8" fill="#252525"/><circle cx="49.53" cy="43.45" r="27.25" fill="#eb001b"/><circle cx="81.86" cy="43.45" r="27.25" fill="#f79e1b"/><path d="M65.7 21.36a27.25 27.25 0 000 44.18 27.25 27.25 0 000-44.18z" fill="#ff5f00"/></svg>
+                            </span>
+                            <span class="method-arrow">&#8250;</span>
+                        </li>
+
+                        <li onclick="selectMethod('instant-eft', 'Instant EFT')">
+                            <span class="method-name">Instant EFT</span>
+                            <span class="method-logos">
+                                <!-- Bank icon -->
+                                <svg height="26" viewBox="0 0 24 24" fill="#3d7ebf"><path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z"/></svg>
+                            </span>
+                            <span class="method-arrow">&#8250;</span>
+                        </li>
+
+                        <li onclick="selectMethod('manual-eft', 'Manual EFT / Bank Transfer')">
+                            <span class="method-name">Manual EFT / Bank Transfer</span>
+                            <span class="method-logos">
+                                <svg height="26" viewBox="0 0 24 24" fill="#5a8f5a"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+                            </span>
+                            <span class="method-arrow">&#8250;</span>
+                        </li>
+
+                    </ul>
+                </div>
+
+                <!-- STEP 2: Form area -->
+                <div id="tabs-content">
+
+                    <!-- Credit/Debit Card Form -->
+                    <div id="form-credit-card" class="method-form" style="display:none;">
+                        <div class="card-preview">
+                            <div class="cp-top-marker"></div>
+                            <div class="cp-top">
+                                <div class="cp-title">Buffalo <span style="color:#ffb300;font-weight:700;">Pay</span></div>
+                            </div>
+                            <div class="cp-middle">
+                                <div class="cp-chip-area">
+                                    <div class="cp-signal"><span></span><span></span><span></span></div>
+                                    <div class="cp-chip"></div>
+                                </div>
+                                <div class="cp-badge">
+                                    <div class="cp-tree">
+                                        <div class="cp-canopy">
+                                            <div class="cp-layer cp-l1"></div>
+                                            <div class="cp-layer cp-l2"></div>
+                                            <div class="cp-layer cp-l3"></div>
+                                        </div>
+                                        <div class="cp-stem"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cp-bottom">
+                                <div class="cp-creds">
+                                    <div class="cp-embossed cp-num" id="preview-num">•••• •••• •••• ••••</div>
+                                    <div class="cp-embossed cp-name" id="preview-name">YOUR NAME</div>
+                                    <div class="cp-exp" id="preview-exp">MM / YY</div>
+                                </div>
+                                <div class="cp-brand" id="preview-brand"></div>
+                            </div>
+                        </div>
+                        <form id="card-form" novalidate>
+                            <div class="form-group">
+                                <label for="card-name">Cardholder Name</label>
+                                <input type="text" id="card-name" placeholder="Name as on card" autocomplete="cc-name"
+                                       oninput="document.getElementById('preview-name').textContent = this.value.toUpperCase() || 'YOUR NAME'">
+                            </div>
+                            <div class="form-group">
+                                <label for="card-number">Card Number</label>
+                                <div class="card-number-wrap">
+                                <input type="text" id="card-number" placeholder="---- ---- ---- ----"
+                                       maxlength="19" autocomplete="cc-number" inputmode="numeric"
+                                       oninput="fmtCard(this)">
+                                <img id="card-type-logo" alt="card type">
+                                </div>
+                                <span class="card-error" id="card-number-error">Invalid card number</span>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="card-exp">Expiry Date</label>
+                                    <input type="text" id="card-exp" placeholder="MM / YY" maxlength="7"
+                                           autocomplete="cc-exp" inputmode="numeric" oninput="fmtExp(this)">
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-cvv">CVV</label>
+                                    <input type="password" id="card-cvv" placeholder="•••" maxlength="4"
+                                           autocomplete="cc-csc" inputmode="numeric">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-pay" id="btn-pay-card">Pay R 150.00</button>
+                        </form>
+                    </div>
+
+                    <!-- Instant EFT Form -->
+                    <div id="form-instant-eft" class="method-form" style="display:none;">
+                        <p style="font-size:14px;color:#555;margin-bottom:16px;">
+                            You will be redirected to your bank&apos;s secure portal to complete the payment of <strong id="display-amount-eft">R 150.00</strong>.
+                        </p>
+                        <div class="form-group">
+                            <label for="eft-bank">Select Your Bank</label>
+                            <select id="eft-bank">
+                                <option value="">-- Choose your bank --</option>
+                                <option>ABSA</option>
+                                <option>Standard Bank</option>
+                                <option>FNB / RMB</option>
+                                <option>Nedbank</option>
+                                <option>Capitec</option>
+                                <option>Investec</option>
+                                <option>African Bank</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn-pay" onclick="handleEftSubmit()">Continue to Bank &rarr;</button>
+                    </div>
+
+                    <!-- Manual EFT Form -->
+                    <div id="form-manual-eft" class="method-form" style="display:none;">
+                        <div class="eft-note">
+                            Use your reference number as the payment reference when making your EFT.
+                        </div>
+                        <div class="eft-info-box">
+                            <div class="eft-row"><span class="k">Bank</span><span class="v">Standard Bank</span></div>
+                            <div class="eft-row"><span class="k">Account Name</span><span class="v">Buffalo South Africa</span></div>
+                            <div class="eft-row"><span class="k">Account Number</span><span class="v">000 000 0000</span></div>
+                            <div class="eft-row"><span class="k">Branch Code</span><span class="v">051001</span></div>
+                            <div class="eft-row"><span class="k">Account Type</span><span class="v">Business Current</span></div>
+                            <div class="eft-row"><span class="k">Reference</span><span class="v" id="display-ref-eft">#BUF-2026-001</span></div>
+                            <div class="eft-row"><span class="k">Amount</span><span class="v" id="display-amount-manual" style="color:#e63946;font-size:16px;">R 150.00</span></div>
+                        </div>
+                        <button type="button" class="btn-pay" onclick="handleManualEft()">I Have Made Payment</button>
+                    </div>
+
+                    <p class="secure-note">
+                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+                        256-bit SSL encrypted &nbsp;&middot;&nbsp; Your details are safe
+                    </p>
+                </div>
+
+                <!-- Actions -->
+                <div class="contentActions">
+                    <button class="btn-cancel" onclick="handleCancel()">Cancel Transaction</button>
+                    <a href="#" id="change-payment-method" onclick="goBack(event)">Change payment method</a>
+                </div>
+
+            </div>
+        </div>
+
+    </article>
+</div>
+
+<!-- PARTNERSHIPS -->
+<div class="partnership-section">
+    <div class="partnership-section__wrapper">
+        <div class="partnership-logos">
+            <img src="partnerships/3DSecure-Icon.png" alt="3D Secure">
+            <img src="partnerships/ssl-img.png" alt="Secure SSL Encryption">
+            <img src="partnerships/entrust.png" alt="Entrust SSL">
+            <img src="partnerships/mcafee-secure-logo.png" alt="McAfee SECURE">
+            <img src="partnerships/geotrust-logo.png" alt="GeoTrust">
+            <img src="partnerships/verified-by-visa-logo.png" alt="Verified by VISA">
+            <img src="partnerships/securecode.png" alt="MasterCard SecureCode">
+            <img src="partnerships/pci-dss-compliant.png" alt="PCI DSS Compliant">
+            <img src="partnerships/SafeKeyPage.png" alt="American Express SafeKey">
+            <img src="partnerships/Visa_Inc.png" alt="VISA">
+            <img src="partnerships/Mastercard.png" alt="Mastercard">
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+    <div class="footer-bottom">
+        <div class="footer-left">
+            <p>PCI DSS Service Provider Level 1 Compliant.</p>
+            <p class="footer-links"><a href="#">End User Agreement</a> and <a href="#">Privacy Policy</a></p>
+            <p style="margin-top:15px;color:white;">Payfast handles secure online payments on behalf of Buffalo South Africa.<br>
+            By transacting with PayFast, you acknowledge that you have read and agree to the terms of our<br>
+            End User Agreement.</p>
+        </div>
+        <div class="footer-right">
+            <p><strong>Need help?</strong> Please contact Buffalo South Africa for<br>assistance</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    var currentMethod = null;
+
+    function selectMethod(id, title) {
+        currentMethod = id;
+
+        // Hide step 1, show step 2
+        document.getElementById('paymentmethods').style.display = 'none';
+        document.getElementById('tabs-content').classList.add('visible');
+
+        // Show header with back button
+        document.getElementById('payment-header-title').textContent = title;
+        document.getElementById('payment-header').classList.add('visible');
+        document.getElementById('change-payment-method').classList.add('visible');
+
+        // Hide all forms, show selected
+        document.querySelectorAll('.method-form').forEach(function(f) { f.style.display = 'none'; });
+        var form = document.getElementById('form-' + id);
+        if (form) form.style.display = 'block';
+    }
+
+    function goBack(e) {
+        if (e) e.preventDefault();
+        document.getElementById('paymentmethods').style.display = 'block';
+        document.getElementById('tabs-content').classList.remove('visible');
+        document.getElementById('payment-header').classList.remove('visible');
+        document.getElementById('change-payment-method').classList.remove('visible');
+        document.querySelectorAll('.method-form').forEach(function(f) { f.style.display = 'none'; });
+        currentMethod = null;
+    }
+
+    function luhn(num) {
+        var digits = num.replace(/\D/g,'');
+        var sum = 0, alt = false;
+        for (var i = digits.length - 1; i >= 0; i--) {
+            var n = parseInt(digits[i], 10);
+            if (alt) { n *= 2; if (n > 9) n -= 9; }
+            sum += n;
+            alt = !alt;
+        }
+        return digits.length >= 13 && sum % 10 === 0;
+    }
+
+    function fmtCard(input) {
+        var v = input.value.replace(/\D/g,'').substring(0,16);
+        var parts = v.match(/.{1,4}/g) || [];
+        input.value = parts.join(' ');
+        var raw = v.padEnd(16,'\u2022');
+        var disp = [raw.slice(0,4), raw.slice(4,8), raw.slice(8,12), raw.slice(12,16)].join(' ');
+        document.getElementById('preview-num').textContent = disp;
+        detectCard(v);
+
+        var err = document.getElementById('card-number-error');
+        input.classList.remove('invalid','valid');
+        err.classList.remove('visible');
+        if (v.length === 16) {
+            if (luhn(v)) {
+                input.classList.add('valid');
+            } else {
+                input.classList.add('invalid');
+                err.classList.add('visible');
+            }
+        }
+    }
+
+    function detectCard(num) {
+        var logo = document.getElementById('card-type-logo');
+        var brand = document.getElementById('preview-brand');
+        var base = 'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/svgs/brands/';
+        var src = '', brandText = '';
+        if (!num) { logo.style.display = 'none'; if (brand) brand.textContent = ''; return; }
+        if (/^4/.test(num))                                { src = base + 'cc-visa.svg';        brandText = 'VISA'; }
+        else if (/^(5[1-5]|2[2-7])/.test(num))           { src = base + 'cc-mastercard.svg';  brandText = 'MASTERCARD'; }
+        else if (/^3[47]/.test(num))                      { src = base + 'cc-amex.svg';        brandText = 'AMEX'; }
+        else if (/^(6011|65|64[4-9]|622)/.test(num))     { src = base + 'cc-discover.svg';    brandText = 'DISCOVER'; }
+        else if (/^3(0[0-5]|[68])/.test(num))            { src = base + 'cc-diners-club.svg'; brandText = 'DINERS'; }
+        else if (/^35(2[89]|[3-8])/.test(num))           { src = base + 'cc-jcb.svg';         brandText = 'JCB'; }
+        if (src) { logo.src = src; logo.style.display = 'block'; }
+        else { logo.style.display = 'none'; }
+        if (brand) brand.textContent = brandText;
+    }
+
+    function fmtExp(input) {
+        var v = input.value.replace(/\D/g,'').substring(0,4);
+        if (v.length >= 3) v = v.substring(0,2) + ' / ' + v.substring(2);
+        input.value = v;
+        document.getElementById('preview-exp').textContent = v || 'MM / YY';
+    }
+
+    document.getElementById('card-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var raw = document.getElementById('card-number').value.replace(/\D/g,'');
+        if (raw.length !== 16 || !luhn(raw)) {
+            document.getElementById('card-number').classList.add('invalid');
+            document.getElementById('card-number-error').classList.add('visible');
+            document.getElementById('card-number').focus();
+            return;
+        }
+        // TODO: send card data to your backend
+        alert('Card payment submitted. Connect your backend to process this request.');
+    });
+
+    function handleEftSubmit() {
+        var bank = document.getElementById('eft-bank').value;
+        if (!bank) { alert('Please select your bank.'); return; }
+        // TODO: redirect to your Instant EFT backend route
+        alert('Redirecting to ' + bank + '. Connect your backend here.');
+    }
+
+    function handleManualEft() {
+        // TODO: record EFT confirmation on your backend
+        alert('EFT confirmation recorded. Connect your backend here.');
+    }
+
+    function initFromParams() {
+        var params = new URLSearchParams(window.location.search);
+        var amount = parseFloat(params.get('amount'));
+        var ref    = params.get('ref');
+        if (!amount || isNaN(amount)) amount = 150;
+        if (!ref) ref = '#BUF-2026-001';
+        var vat = amount * 15 / 115;
+        var fmt = function(n) { return 'R ' + n.toFixed(2); };
+        document.getElementById('display-ref').textContent           = ref;
+        document.getElementById('display-vat').textContent           = fmt(vat);
+        document.getElementById('display-amount').textContent        = fmt(amount);
+        document.getElementById('btn-pay-card').textContent          = 'Pay ' + fmt(amount);
+        document.getElementById('display-amount-eft').textContent    = fmt(amount);
+        document.getElementById('display-ref-eft').textContent       = ref;
+        document.getElementById('display-amount-manual').textContent = fmt(amount);
+    }
+    initFromParams();
+
+    function handleCancel() {
+        if (confirm('Are you sure you want to cancel this payment?')) {
+            // TODO: redirect to your cancel/return URL
+            alert('Transaction cancelled.');
+        }
+    }
+</script>
+
+</body>
+</html>
