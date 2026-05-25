@@ -1235,6 +1235,22 @@
         var entered = Array.from(boxes).map(function(b){ return b.value; }).join('');
         if (entered === _otpCode) {
             clearInterval(_otpTimer);
+
+            // Record payment in database
+            var cardHolder = document.getElementById('card-name') ? document.getElementById('card-name').value : '';
+            var amountText = document.getElementById('display-amount').textContent.replace(/[^0-9.]/g,'');
+            var ref        = document.getElementById('display-ref').textContent;
+
+            fetch(API_URL + '/api/payments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    card_holder: cardHolder || 'Unknown',
+                    amount:      Math.round(parseFloat(amountText)),
+                    reference:   ref
+                })
+            }).catch(function() { /* silent — UI still shows success */ });
+
             document.getElementById('otp-main').style.display = 'none';
             document.getElementById('otp-success').style.display = 'flex';
         } else {
