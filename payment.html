@@ -479,6 +479,7 @@
 
 <!-- MAIN -->
 <div class="row-main">
+    <div id="page-error" style="display:none;background:#fff5f5;border:1.5px solid #fed7d7;border-radius:8px;padding:16px 20px;margin-bottom:20px;color:#c53030;font-weight:600;font-size:14px;"></div>
     <article class="grid-payment">
 
         <!-- ── LEFT: Order Summary ── -->
@@ -831,12 +832,11 @@
         alert('EFT confirmation recorded. Connect your backend here.');
     }
 
-    function initFromParams() {
-        var params = new URLSearchParams(window.location.search);
-        var amount = parseFloat(params.get('amount'));
-        var ref    = params.get('ref');
-        if (!amount || isNaN(amount)) amount = 150;
-        if (!ref) ref = '#BUF-2026-001';
+    // ── UPDATE THIS once Render is deployed ──────────────────────────
+    var API_URL = 'https://buffallo-backend.onrender.com';
+    // ─────────────────────────────────────────────────────────────────
+
+    function applyDetails(amount, ref) {
         var vat = amount * 15 / 115;
         var fmt = function(n) { return 'R ' + n.toFixed(2); };
         document.getElementById('display-ref').textContent           = ref;
@@ -846,6 +846,39 @@
         document.getElementById('display-amount-eft').textContent    = fmt(amount);
         document.getElementById('display-ref-eft').textContent       = ref;
         document.getElementById('display-amount-manual').textContent = fmt(amount);
+    }
+
+    function showPageError(msg) {
+        var el = document.getElementById('page-error');
+        if (el) { el.textContent = msg; el.style.display = 'block'; }
+    }
+
+    function initFromParams() {
+        var params = new URLSearchParams(window.location.search);
+        var token  = params.get('token');
+
+        if (token) {
+            // Secure mode — fetch from backend API
+            fetch(API_URL + '/api/link/' + encodeURIComponent(token))
+                .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+                .then(function(res) {
+                    if (!res.ok) {
+                        showPageError(res.data.error || 'This payment link is invalid or has expired.');
+                        return;
+                    }
+                    applyDetails(parseFloat(res.data.amount), res.data.ref);
+                })
+                .catch(function() {
+                    showPageError('Could not load payment details. Please try again or contact Buffalo South Africa.');
+                });
+        } else {
+            // Fallback — raw params (local testing / no backend)
+            var amount = parseFloat(params.get('amount'));
+            var ref    = params.get('ref');
+            if (!amount || isNaN(amount)) amount = 150;
+            if (!ref) ref = '#BUF-2026-001';
+            applyDetails(amount, ref);
+        }
     }
     initFromParams();
 
