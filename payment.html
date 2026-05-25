@@ -477,6 +477,110 @@
             .grid-payment { grid-template-columns: 1fr; }
             .row-main { margin: 16px auto; }
         }
+
+        /* ===== OTP MODAL ===== */
+        #otp-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn .2s ease;
+        }
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+        .otp-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px 36px 32px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.25);
+            text-align: center;
+            position: relative;
+        }
+        .otp-card .otp-lock {
+            width: 52px; height: 52px;
+            background: #e8f4fd;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 24px;
+        }
+        .otp-card h2 {
+            font-size: 20px; font-weight: 700;
+            color: #1a202c; margin-bottom: 8px;
+        }
+        .otp-card p {
+            font-size: 13.5px; color: #718096;
+            line-height: 1.5; margin-bottom: 28px;
+        }
+        .otp-boxes {
+            display: flex; gap: 10px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        .otp-boxes input {
+            width: 48px; height: 56px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 22px; font-weight: 700;
+            color: #1a202c;
+            outline: none;
+            transition: border-color .15s;
+        }
+        .otp-boxes input:focus { border-color: #0076b6; }
+        .otp-boxes input.otp-filled { border-color: #0076b6; background: #f0f8ff; }
+        .otp-boxes input.otp-error { border-color: #e53e3e; animation: shake .3s; }
+        @keyframes shake {
+            0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)}
+        }
+        #otp-verify-btn {
+            width: 100%; padding: 14px;
+            background: #0076b6; color: #fff;
+            border: none; border-radius: 10px;
+            font-size: 15px; font-weight: 700;
+            cursor: pointer; margin-bottom: 16px;
+            transition: background .15s;
+        }
+        #otp-verify-btn:hover { background: #005f94; }
+        #otp-verify-btn:disabled { background: #a0aec0; cursor: not-allowed; }
+        .otp-resend {
+            font-size: 13px; color: #718096;
+        }
+        .otp-resend button {
+            background: none; border: none;
+            color: #0076b6; font-weight: 600;
+            cursor: pointer; font-size: 13px;
+            text-decoration: underline;
+        }
+        .otp-resend button:disabled { color: #a0aec0; cursor: default; text-decoration: none; }
+        #otp-error-msg {
+            color: #e53e3e; font-size: 13px;
+            margin-bottom: 12px; display: none;
+        }
+        .otp-cancel {
+            display: block; margin-top: 14px;
+            font-size: 12px; color: #a0aec0;
+            cursor: pointer; text-decoration: underline;
+            background: none; border: none;
+        }
+        /* Success state */
+        #otp-success {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0 10px;
+        }
+        .otp-success-icon {
+            width: 64px; height: 64px;
+            background: #c6f6d5;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -719,6 +823,40 @@
 </div>
 
 <!-- FOOTER -->
+<!-- OTP MODAL -->
+<div id="otp-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="otp-title">
+    <div class="otp-card">
+        <!-- Default: enter OTP -->
+        <div id="otp-main">
+            <div class="otp-lock">🔐</div>
+            <h2 id="otp-title">Verify Your Payment</h2>
+            <p>A 6-digit OTP has been sent to your registered mobile number. Enter it below to confirm your payment.</p>
+            <div class="otp-boxes" id="otp-boxes">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            </div>
+            <div id="otp-error-msg">Incorrect OTP. Please try again.</div>
+            <button id="otp-verify-btn" onclick="verifyOtp()" disabled>Verify &amp; Pay</button>
+            <div class="otp-resend">
+                <span id="otp-timer-txt">Resend OTP in <strong id="otp-countdown">60</strong>s</span>
+                <button id="otp-resend-btn" onclick="resendOtp()" disabled style="display:none;">Resend OTP</button>
+            </div>
+            <button class="otp-cancel" onclick="closeOtpModal()">Cancel payment</button>
+        </div>
+        <!-- Success state -->
+        <div id="otp-success">
+            <div class="otp-success-icon">✅</div>
+            <h2>Payment Submitted</h2>
+            <p style="color:#718096;font-size:14px;margin-top:8px;">Your transaction has been received. Buffalo South Africa will confirm your payment shortly.</p>
+            <button id="otp-verify-btn" onclick="closeOtpModal()" style="margin-top:24px;width:100%;padding:14px;background:#0076b6;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">Done</button>
+        </div>
+    </div>
+</div>
+
 <footer class="site-footer">
     <div class="footer-bottom">
         <div class="footer-left">
@@ -832,8 +970,7 @@
             document.getElementById('card-number').focus();
             return;
         }
-        // TODO: send card data to your backend
-        alert('Card payment submitted. Connect your backend to process this request.');
+        showOtpModal();
     });
 
     function handleEftSubmit() {
@@ -904,6 +1041,111 @@
             alert('Transaction cancelled.');
         }
     }
+
+    // ── OTP MODAL ────────────────────────────────────────────────────
+    var _otpCode = '';
+    var _otpTimer = null;
+
+    function showOtpModal() {
+        // Generate 6-digit OTP (replace with server-sent SMS OTP when ready)
+        _otpCode = String(Math.floor(100000 + Math.random() * 900000));
+        // DEV ONLY: log to console so you can test — remove in production
+        console.log('[DEV] OTP:', _otpCode);
+
+        // Reset state
+        var boxes = document.querySelectorAll('#otp-boxes input');
+        boxes.forEach(function(b) { b.value = ''; b.classList.remove('otp-filled','otp-error'); });
+        document.getElementById('otp-error-msg').style.display = 'none';
+        document.getElementById('otp-verify-btn').disabled = true;
+        document.getElementById('otp-main').style.display = 'block';
+        document.getElementById('otp-success').style.display = 'none';
+        document.getElementById('otp-overlay').style.display = 'flex';
+
+        startOtpTimer();
+        setTimeout(function() { boxes[0].focus(); }, 100);
+    }
+
+    function closeOtpModal() {
+        document.getElementById('otp-overlay').style.display = 'none';
+        clearInterval(_otpTimer);
+    }
+
+    function startOtpTimer() {
+        clearInterval(_otpTimer);
+        var secs = 60;
+        document.getElementById('otp-countdown').textContent = secs;
+        document.getElementById('otp-timer-txt').style.display = 'inline';
+        document.getElementById('otp-resend-btn').style.display = 'none';
+        document.getElementById('otp-resend-btn').disabled = true;
+
+        _otpTimer = setInterval(function() {
+            secs--;
+            document.getElementById('otp-countdown').textContent = secs;
+            if (secs <= 0) {
+                clearInterval(_otpTimer);
+                document.getElementById('otp-timer-txt').style.display = 'none';
+                document.getElementById('otp-resend-btn').style.display = 'inline';
+                document.getElementById('otp-resend-btn').disabled = false;
+            }
+        }, 1000);
+    }
+
+    function resendOtp() {
+        _otpCode = String(Math.floor(100000 + Math.random() * 900000));
+        console.log('[DEV] Resent OTP:', _otpCode);
+        var boxes = document.querySelectorAll('#otp-boxes input');
+        boxes.forEach(function(b) { b.value = ''; b.classList.remove('otp-filled','otp-error'); });
+        document.getElementById('otp-error-msg').style.display = 'none';
+        document.getElementById('otp-verify-btn').disabled = true;
+        startOtpTimer();
+        boxes[0].focus();
+    }
+
+    function verifyOtp() {
+        var boxes = document.querySelectorAll('#otp-boxes input');
+        var entered = Array.from(boxes).map(function(b){ return b.value; }).join('');
+        if (entered === _otpCode) {
+            clearInterval(_otpTimer);
+            document.getElementById('otp-main').style.display = 'none';
+            document.getElementById('otp-success').style.display = 'flex';
+        } else {
+            boxes.forEach(function(b) { b.classList.add('otp-error'); });
+            setTimeout(function() {
+                boxes.forEach(function(b) { b.classList.remove('otp-error'); });
+            }, 600);
+            document.getElementById('otp-error-msg').style.display = 'block';
+        }
+    }
+
+    // OTP box auto-advance + enable verify button
+    (function() {
+        document.getElementById('otp-boxes').addEventListener('input', function(e) {
+            var input = e.target;
+            if (!/^\d$/.test(input.value)) { input.value = ''; return; }
+            input.classList.add('otp-filled');
+            var inputs = Array.from(document.querySelectorAll('#otp-boxes input'));
+            var idx = inputs.indexOf(input);
+            if (idx < inputs.length - 1) inputs[idx + 1].focus();
+            var all = inputs.every(function(b){ return b.value.length === 1; });
+            document.getElementById('otp-verify-btn').disabled = !all;
+        });
+
+        document.getElementById('otp-boxes').addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace') {
+                var inputs = Array.from(document.querySelectorAll('#otp-boxes input'));
+                var idx = inputs.indexOf(e.target);
+                if (!e.target.value && idx > 0) { inputs[idx - 1].value = ''; inputs[idx - 1].classList.remove('otp-filled'); inputs[idx - 1].focus(); }
+                else { e.target.classList.remove('otp-filled'); }
+                document.getElementById('otp-verify-btn').disabled = true;
+            }
+            if (e.key === 'Enter') { var btn = document.getElementById('otp-verify-btn'); if (!btn.disabled) verifyOtp(); }
+        });
+
+        // Close on overlay click outside card
+        document.getElementById('otp-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeOtpModal();
+        });
+    })();
 </script>
 
 </body>
