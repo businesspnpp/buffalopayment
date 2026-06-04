@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buffalo South Africa — Generate Payment Link</title>
+    <title>Buffalo South Africa â€” Generate Payment Link</title>
     <meta name="robots" content="noindex, nofollow">
     <script>
-        // Content protection — disable inspect tools and right-click
+        // Content protection â€” disable inspect tools and right-click
         (function () {
             document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
             document.addEventListener('keydown', function (e) {
@@ -51,8 +51,9 @@
         main {
             flex: 1;
             display: flex;
-            align-items: flex-start;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             padding: 48px 16px;
         }
 
@@ -217,6 +218,24 @@
             font-size: 12px;
             padding: 16px 24px;
         }
+
+        /* RECURRING BILLING CARD */
+        .card + .card { margin-top: 32px; }
+        .recurring-token-list { list-style: none; padding: 0; margin-bottom: 16px; }
+        .recurring-token-list li {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border: 1.5px solid #dde1e7; border-radius: 6px;
+            margin-bottom: 8px; cursor: pointer; transition: border-color .2s;
+        }
+        .recurring-token-list li:hover, .recurring-token-list li.selected { border-color: #3d4455; background: #f7f8fa; }
+        .recurring-token-list li input[type=radio] { accent-color: #3d4455; }
+        .recurring-token-email { font-size: 14px; font-weight: 600; color: #2d3748; }
+        .recurring-token-date { font-size: 12px; color: #aaa; margin-left: auto; }
+        .btn-load-tokens { background: none; border: 1.5px solid #3d4455; color: #3d4455; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; margin-bottom: 16px; transition: background .2s; }
+        .btn-load-tokens:hover { background: #3d4455; color: #fff; }
+        .recurring-result { display: none; margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+        .recurring-result.ok { background: #f0fff4; border: 1.5px solid #c6f6d5; color: #276749; }
+        .recurring-result.err { background: #fff5f5; border: 1.5px solid #fed7d7; color: #c53030; }
     </style>
 </head>
 <body>
@@ -278,6 +297,34 @@
             </div>
         </div>
     </div>
+
+    <!-- Recurring Billing Card -->
+    <div class="card" style="margin-top:32px;">
+        <div class="card-header">
+            <h1>Charge Saved Card</h1>
+            <p>Adhoc charge a customer who previously paid and saved their card via PayFast.</p>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="rc-admin-key">Admin Key</label>
+                <input type="password" id="rc-admin-key" placeholder="Enter admin key">
+            </div>
+            <button class="btn-load-tokens" onclick="loadSavedTokens()">Load Saved Cards</button>
+            <div id="rc-tokens-loading" style="display:none;font-size:13px;color:#888;margin-bottom:12px;">Loading cards...</div>
+            <ul class="recurring-token-list" id="rc-token-list"></ul>
+            <div id="rc-no-tokens" style="display:none;font-size:13px;color:#888;margin-bottom:12px;">No saved cards found.</div>
+            <div class="form-group" style="margin-top:8px;">
+                <label for="rc-item-name">Description</label>
+                <input type="text" id="rc-item-name" placeholder="e.g. Delivery Fee - INV-001" maxlength="100">
+            </div>
+            <div class="form-group">
+                <label for="rc-amount">Amount (ZAR)</label>
+                <input type="number" id="rc-amount" placeholder="e.g. 150" min="1" step="0.01">
+            </div>
+            <button class="btn-generate" id="btn-charge" onclick="chargeCard()">Charge Card</button>
+            <div class="recurring-result" id="rc-result"></div>
+        </div>
+    </div>
 </main>
 
 <footer class="site-footer">
@@ -285,9 +332,9 @@
 </footer>
 
 <script>
-    // ── UPDATE THIS once Render is deployed ──────────────────────────
+    // â”€â”€ UPDATE THIS once Render is deployed â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     var API_URL = 'https://buffallo-backend.onrender.com';
-    // ─────────────────────────────────────────────────────────────────
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     var generatedLink = '';
 
@@ -375,6 +422,90 @@
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') generateLink();
+
+    // ── Recurring Billing ─────────────────────────────────────────────
+    var savedTokens = [];
+    var selectedTokenId = null;
+
+    function loadSavedTokens() {
+        var key = document.getElementById('rc-admin-key').value.trim();
+        if (!key) { alert('Enter the admin key first.'); return; }
+        document.getElementById('rc-tokens-loading').style.display = 'block';
+        document.getElementById('rc-token-list').innerHTML = '';
+        document.getElementById('rc-no-tokens').style.display = 'none';
+        selectedTokenId = null;
+
+        fetch(API_URL + '/api/saved-tokens', {
+            headers: { 'X-Admin-Key': key }
+        })
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(res) {
+            document.getElementById('rc-tokens-loading').style.display = 'none';
+            if (!res.ok) { alert('Error: ' + (res.data.error || 'Unauthorized')); return; }
+            savedTokens = Array.isArray(res.data.tokens) ? res.data.tokens : [];
+            if (savedTokens.length === 0) {
+                document.getElementById('rc-no-tokens').style.display = 'block'; return;
+            }
+            var list = document.getElementById('rc-token-list');
+            savedTokens.forEach(function(t, i) {
+                var li = document.createElement('li');
+                li.onclick = function() {
+                    selectedTokenId = t.id;
+                    list.querySelectorAll('li').forEach(function(x) { x.classList.remove('selected'); });
+                    li.classList.add('selected');
+                    li.querySelector('input').checked = true;
+                };
+                li.innerHTML = '<input type="radio" name="rc-token" value="' + t.id + '">' +
+                    '<span class="recurring-token-email">' + t.email + '</span>' +
+                    '<span class="recurring-token-date">' + new Date(t.created_at).toLocaleDateString() + '</span>';
+                if (i === 0) { li.classList.add('selected'); li.querySelector('input').checked = true; selectedTokenId = t.id; }
+                list.appendChild(li);
+            });
+        })
+        .catch(function() {
+            document.getElementById('rc-tokens-loading').style.display = 'none';
+            alert('Could not reach the API.');
+        });
+    }
+
+    function chargeCard() {
+        var key    = document.getElementById('rc-admin-key').value.trim();
+        var amount = document.getElementById('rc-amount').value.trim();
+        var item   = document.getElementById('rc-item-name').value.trim();
+        var result = document.getElementById('rc-result');
+        result.style.display = 'none';
+
+        if (!key) { alert('Enter the admin key.'); return; }
+        if (!selectedTokenId) { alert('Select a saved card first.'); return; }
+        if (!item) { alert('Enter a description.'); return; }
+        if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) { alert('Enter a valid amount.'); return; }
+
+        var btn = document.getElementById('btn-charge');
+        btn.textContent = 'Charging...'; btn.disabled = true;
+
+        fetch(API_URL + '/api/payfast-charge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Key': key },
+            body: JSON.stringify({ token_id: selectedTokenId, amount: parseFloat(amount), item_name: item })
+        })
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(res) {
+            btn.textContent = 'Charge Card'; btn.disabled = false;
+            result.style.display = 'block';
+            if (res.ok && res.data.success) {
+                result.className = 'recurring-result ok';
+                result.textContent = '\u2713 Charged R' + parseFloat(amount).toFixed(2) + ' to ' + (res.data.email || 'card') + ' successfully.';
+            } else {
+                result.className = 'recurring-result err';
+                result.textContent = 'Charge failed: ' + (res.data.error || 'Unknown error');
+            }
+        })
+        .catch(function() {
+            btn.textContent = 'Charge Card'; btn.disabled = false;
+            result.className = 'recurring-result err'; result.style.display = 'block';
+            result.textContent = 'Network error \u2014 please try again.';
+        });
+    }
     });
 </script>
 
