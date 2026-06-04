@@ -422,6 +422,7 @@
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') generateLink();
+    });
 
     // ── Recurring Billing ─────────────────────────────────────────────
     var savedTokens = [];
@@ -506,7 +507,6 @@
             result.textContent = 'Network error \u2014 please try again.';
         });
     }
-    });
 </script>
 
 </body>
